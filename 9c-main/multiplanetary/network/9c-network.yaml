@@ -5,7 +5,7 @@ clusterName: "9c-main-v2"
 logLevel: "debug"
 
 global:
-  appProtocolVersion: "200190/AB2da648b9154F2cCcAFBD85e0Bc3d51f97330Fc/MEUCIQCqzZ15o0sndS7qez2DZahdZXVy31hO0IcnZytftf8SBwIgGyKczzkGSCwfjEXPIYIxwAemtawgqlAtOfgbQg1Dk7k=/ZHU5OnRpbWVzdGFtcHUxMDoyMDI0LTA3LTAxZQ=="
+  appProtocolVersion: "200210/AB2da648b9154F2cCcAFBD85e0Bc3d51f97330Fc/MEUCIQCBr..8VdITFe9nMTobl4akFid.s8G2zy2pBidAyRXSeAIgER77qX+eywjgyth6QYi7rQw5nK3KXO6cQ6ngUh.CyfU=/ZHU5OnRpbWVzdGFtcHUxMDoyMDI0LTA3LTMwZQ=="
 
   validatorPath: "validator-5.9c-network.svc.cluster.local"
   genesisBlockPath: "https://release.nine-chronicles.com/genesis-block-9c-main"
@@ -47,7 +47,7 @@ ingress:
 
 snapshot:
   slackChannel: "9c-mainnet"
-  image: "planetariumhq/ninechronicles-snapshot:git-628c4bfa8b00dc071a8cf6a2a80b5e84c1d80262"
+  image: "planetariumhq/ninechronicles-snapshot:git-26ace851e53100001efbc7ba9282478269fde0f6"
   path: "main/partition"
 
   fullSnapshot:
@@ -85,8 +85,13 @@ seed:
   # dotnet args
   workerCount: 1000
 
+  resources:
+    requests:
+      cpu: 500m
+      memory: 500Mi
+
   nodeSelector:
-    node.kubernetes.io/instance-type: m5.large
+    eks.amazonaws.com/nodegroup: 9c-main-m7g_l_2c
 
 validator:
   count: 4
@@ -114,8 +119,6 @@ validator:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
 
@@ -190,8 +193,6 @@ remoteHeadless:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
 
@@ -219,7 +220,7 @@ dataProviderDataMigrator:
   enabled: true
 
   nodeSelector:
-    eks.amazonaws.com/nodegroup: 9c-main-r7g_2xl_2c_test
+    eks.amazonaws.com/nodegroup: 9c-main-r7g_2xl_2c_dp
 
   resources:
     requests:
@@ -249,8 +250,6 @@ dataProvider:
       memory: 26Gi
 
   env:
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
   - name: NC_Planet
@@ -345,32 +344,8 @@ fullState:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
-  - name: PYROSCOPE_APPLICATION_NAME
-    value: main-full-state
-  - name: PYROSCOPE_SERVER_ADDRESS
-    value: http://pyroscope.pyroscope.svc.cluster.local:4040
-  - name: PYROSCOPE_PROFILING_ENABLED
-    value: "1"
-  - name: CORECLR_ENABLE_PROFILING
-    value: "1"
-  - name: CORECLR_PROFILER
-    value: '{BD1A650D-AC5D-4896-B64F-D6FA25D6B26A}'
-  - name: CORECLR_PROFILER_PATH
-    value: /data/Pyroscope.Profiler.Native.so
-  - name: LD_PRELOAD
-    value: /data/Pyroscope.Linux.ApiWrapper.x64.so
-  - name: PYROSCOPE_PROFILING_CPU_ENABLED
-    value: "true"
-  - name: PYROSCOPE_PROFILING_EXCEPTION_ENABLED
-    value: "true"
-  - name: PYROSCOPE_PROFILING_ALLOCATION_ENABLED
-    value: "true"
-  - name: PYROSCOPE_PROFILING_LOCK_ENABLED
-    value: "true"
 
   tolerations:
   - effect: NoSchedule
@@ -429,8 +404,6 @@ testHeadless1:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
 
@@ -476,8 +449,6 @@ testHeadless2:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
 
@@ -508,6 +479,10 @@ jwtHeadless:
 
   host: "9c-main-jwt.nine-chronicles.com"
 
+  setupPyroscope: true
+
+  headlessAppsettingsPath: "https://9c-cluster-config.s3.us-east-2.amazonaws.com/9c-main/odin/appsettings-nodeinfra.json"
+
   env:
   - name: IpRateLimiting__EnableEndpointRateLimiting
     value: "false"
@@ -527,8 +502,6 @@ jwtHeadless:
     value: "redis"
   - name: Headless__AccessControlService__AccessControlServiceConnectionString
     value: "acc-redis-service.9c-network.svc.cluster.local:6379"
-  - name: DOTNET_gcServer
-    value: "1"
   - name: PLUGIN_PATH
     value: "/data"
 
@@ -548,7 +521,7 @@ jwtHeadless:
     value: remote-headless-test
 
   nodeSelector:
-    eks.amazonaws.com/nodegroup: 9c-main-m7g_2xl_2c_test
+    eks.amazonaws.com/nodegroup: 9c-main-m7i_flex_2xl_2c_test
 
 remoteActionEvaluatorHeadless:
   enabled: false
@@ -572,8 +545,13 @@ blockIntervalNotifier:
 patrolRewardService:
   enabled: true
 
+  resources:
+    requests:
+      cpu: 100m
+      memory: 500Mi
+
   nodeSelector:
-    node.kubernetes.io/instance-type: m5.large
+    eks.amazonaws.com/nodegroup: 9c-main-m7g_l_2c
 
 acc:
   enabled: true

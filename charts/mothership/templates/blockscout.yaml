@@ -1,3 +1,6 @@
+{{- if .Values.blockscout.enabled }}
+---
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -41,13 +44,19 @@ spec:
             - name: CHECKSUM_FUNCTION
               value: eth
             - name: DATABASE_URL
-              value: postgresql://postgres:@blockscout-postgres:5432/blockscout?ssl=false
+              {{- with .Values.blockscout.db.secretKeyRef }}
+              valueFrom:
+                secretKeyRef:
+                  {{- toYaml . | nindent 18 }}
+              {{- else }}
+              value: {{ .Values.blockscout.db.url }}
+              {{- end }}
             - name: DECODE_NOT_A_CONTRACT_CALLS
               value: "true"
             - name: DISABLE_EXCHANGE_RATES
               value: "true"
             - name: DISABLE_INDEXER
-              value: "false"
+              value: "{{ not .Values.blockscout.indexer }}"
             - name: DISABLE_REALTIME_INDEXER
               value: "false"
             - name: DISABLE_WEBAPP
@@ -88,20 +97,6 @@ spec:
               value: "false"
             - name: INDEXER_DISABLE_TOKEN_INSTANCE_SANITIZE_FETCHER
               value: "false"
-            - name: MICROSERVICE_SC_VERIFIER_ENABLED
-              value: "true"
-            - name: MICROSERVICE_SC_VERIFIER_TYPE
-              value: sc_verifier
-            - name: MICROSERVICE_SC_VERIFIER_URL
-              value: http://blockscout-smart-contract-verifier:8050/
-            - name: MICROSERVICE_SIG_PROVIDER_ENABLED
-              value: "true"
-            - name: MICROSERVICE_SIG_PROVIDER_URL
-              value: http://blockscout-sig-provider:8050/
-            - name: MICROSERVICE_VISUALIZE_SOL2UML_ENABLED
-              value: "true"
-            - name: MICROSERVICE_VISUALIZE_SOL2UML_URL
-              value: http://blockscout-visualizer:8050/
             - name: NETWORK_PATH
               value: /
             - name: POOL_SIZE
@@ -168,6 +163,8 @@ spec:
       port: 443
 
 ---
+{{- if .Values.blockscout.db.local }}
+---
 
 apiVersion: apps/v1
 kind: StatefulSet
@@ -231,3 +228,7 @@ spec:
     - protocol: TCP
       port: 5432
       targetPort: 5432
+
+---
+{{- end }}
+{{- end }}

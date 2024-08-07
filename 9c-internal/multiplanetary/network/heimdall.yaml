@@ -73,8 +73,8 @@ bridgeService:
   rdb:
     enabled: true
     defaultStartBlockIndex:
-      upstream: '11019207'
-      downstream: "2513221"
+      upstream: '11392435'
+      downstream: "2879502"
 
 bridgeServiceApi:
   enabled: true
@@ -155,6 +155,7 @@ remoteHeadless:
 
   extraArgs:
   - --planet=HeimdallInternal
+  - --remote-key-value-service
 
 rudolfService:
   enabled: true
@@ -194,7 +195,7 @@ snapshot:
     suspend: true
   slackChannel: "bot-test"
 
-  image: "planetariumhq/ninechronicles-snapshot:git-fc194ebdc47ec4ebe14f97f5ea01ff97b0a276d6"
+  image: "planetariumhq/ninechronicles-snapshot:git-45205b5ed6d978bb0dda6ad0b84fb0a393015711"
 
   path: internal/heimdall
 
@@ -228,7 +229,6 @@ validator:
   extraArgs:
   - --tx-life-time=2000000000
   - --planet=HeimdallInternal
-  - --remote-key-value-service
 
 worldBoss:
   enabled: true
